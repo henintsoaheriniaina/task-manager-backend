@@ -1,0 +1,111 @@
+import { type Request, type Response } from "express";
+import expressAsyncHandler from "express-async-handler";
+import { User } from "../models/User.model";
+import {
+  type ChangePasswordInput,
+  type UpdateUserInput,
+} from "../schemas/user.schema";
+import { type AuthRequest } from "../types";
+import { ApiError } from "../utils/ApiError";
+
+export const getAllUsers = expressAsyncHandler(
+  async (req: Request, res: Response) => {
+    const users = await User.find().select("-password");
+
+    res.status(200).json({
+      success: true,
+      count: users.length,
+      users,
+    });
+  },
+);
+
+export const getUserById = expressAsyncHandler(
+  async (req: Request, res: Response) => {
+    const user = await User.findById(req.params.id).select("-password");
+
+    if (!user) {
+      throw ApiError.notFound("User not found");
+    }
+
+    res.status(200).json({
+      success: true,
+      user,
+    });
+  },
+);
+
+export const updateUser = expressAsyncHandler(
+  async (req: Request<{ id: string }, {}, UpdateUserInput>, res: Response) => {
+    const { name, email, role } = req.body;
+
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      throw ApiError.notFound("User not found");
+    }
+
+    if (email && email !== user.email) {
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        throw ApiError.conflict("Email already in use");
+      }
+    }
+
+    if (name) user.name = name;
+    if (email) user.email = email;
+    if (role) user.role = role;
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      user: {
+        id: user._id.toString(),
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  },
+);
+
+export const deleteUser = expressAsyncHandler(
+  async (req: Request, res: Response) => {
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      throw ApiError.notFound("User not found");
+    }
+
+    await user.deleteOne();
+
+    res.status(200).json({
+      success: true,
+      message: "User deleted successfully",
+    });
+  },
+);
+
+export const changePassword = expressAsyncHandler(
+  async (req: AuthRequest<{}, {}, ChangePasswordInput>, res: Response) => {
+    const { currentPassword, newPassword } = req.body;
+
+    const user = await User.findById(req.user!.id).select("+password");
+    if (!user) {
+      throw ApiError.notFound("User not found");
+    }
+
+    const isPasswordValid = await user.comparePassword(currentPassword);
+    if (!isPasswordValid) {
+      throw ApiError.unauthorized("Current password is incorrect");
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Password changed successfully",
+    });
+  },
+);
