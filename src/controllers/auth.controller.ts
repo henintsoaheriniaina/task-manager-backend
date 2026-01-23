@@ -9,7 +9,7 @@ import { generateToken, sendTokenResponse } from "../utils/jwt";
 
 export const register = expressAsyncHandler(
   async (req: Request<{}, {}, RegisterInput>, res: Response) => {
-    const { name, email, password, role } = req.body;
+    const { name, email, password } = req.body;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -23,7 +23,6 @@ export const register = expressAsyncHandler(
       name,
       email,
       password: hashedPassword,
-      role,
     });
 
     const token = generateToken(user._id.toString(), user.email, user.role);

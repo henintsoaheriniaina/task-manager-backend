@@ -13,7 +13,13 @@ const envSchema = z.object({
   JWT_SECRET: z.string().min(32, "JWT secret must be at least 32 characters"),
   JWT_EXPIRE: z.string().default("7d"),
   COOKIE_EXPIRE: z.string().default("7"),
-  FRONTEND_URL: z.string().url().default("http://localhost:5173"),
+  FRONTEND_URL: z
+    .url("Frontend URL must be a valid URL")
+    .default("http://localhost:5173"),
+  ADMIN_PASSWORD: z
+    .string()
+    .min(8, "Admin password must be at least 8 characters"),
+  ADMIN_EMAIL: z.email("Admin email must be a valid email address"),
 });
 
 const parsed = envSchema.safeParse(process.env);

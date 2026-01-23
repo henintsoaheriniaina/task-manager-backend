@@ -1,10 +1,12 @@
 import mongoose from "mongoose";
 import { env } from "./env";
+import { seedAdmin } from "./initAdmin";
 
 export const connectDB = async (): Promise<void> => {
   try {
     const conn = await mongoose.connect(env.MONGODB_URI);
     console.log(`Database Connected: ${conn.connection.host}`);
+    await seedAdmin();
   } catch (error) {
     console.error("Database connection error:", error);
     process.exit(1);
