@@ -8,14 +8,14 @@ export const validate = (schema: ZodSchema) => {
       schema.parse(req.body);
       next();
     } catch (error) {
-      // TypeScript a besoin de savoir que 'error' est bien une instance de ZodError
       if (error instanceof ZodError) {
-        // .issues est souvent préférable à .errors dans les versions récentes de Zod
-        const messages = error.issues
-          .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
-          .join(", ");
-
-        next(ApiError.badRequest(messages));
+        const formattedErrors: Record<string, string> = {};
+        error.issues.forEach((issue) => {
+          const path = issue.path.join(".");
+          formattedErrors[path] = issue.message;
+        });
+        const apiError = ApiError.badRequest(JSON.stringify(formattedErrors));
+        next(apiError);
       } else {
         next(error);
       }

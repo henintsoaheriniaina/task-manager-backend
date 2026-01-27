@@ -1,26 +1,25 @@
 import { z } from "zod";
 
 export const createTaskSchema = z.object({
-  title: z.string().min(3, "Title must be at least 3 characters").max(100),
-  description: z.string().min(5, "Description must be at least 5 characters"),
+  title: z
+    .string()
+    .min(3, "Title must be at least 3 characters long")
+    .max(100, "Title must not exceed 100 characters"),
+  description: z
+    .string()
+    .min(5, "Description must be at least 5 characters long"),
   status: z
-    .enum(["todo", "in_progress", "completed"])
+    .enum(["todo", "in_progress", "completed"], "")
     .optional()
     .default("todo"),
-  assignedTo: z.string().optional(),
-  dueDate: z.string().datetime().optional(),
+  assignedTo: z.string(),
+  dueDate: z.coerce.date("Invalid date format"),
 });
 
-export const updateTaskSchema = z.object({
-  title: z.string().min(3).max(100).optional(),
-  description: z.string().min(5).optional(),
-  status: z.enum(["todo", "in_progress", "completed"]).optional(),
-  assignedTo: z.string().optional(),
-  dueDate: z.string().datetime().optional(),
-});
+export const updateTaskSchema = createTaskSchema.partial();
 
 export const taskFilterSchema = z.object({
-  status: z.enum(["todo", "in_progress", "completed"]).optional(),
+  status: z.enum(["todo", "in_progress", "completed"], "").optional(),
   assignedTo: z.string().optional(),
   createdBy: z.string().optional(),
 });

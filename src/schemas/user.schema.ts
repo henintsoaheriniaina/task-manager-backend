@@ -10,11 +10,13 @@ export const createUserSchema = z.object({
     .string("Password is required")
     .min(6, "Password must be at least 6 characters"),
   role: z.enum(["admin", "user"], "Invalid user role").optional(),
+  profile: z.string("Profile is required"),
 });
 export const updateUserSchema = z.object({
   name: z.string().min(2).max(50).optional(),
   email: z.email().optional(),
   role: z.enum(["admin", "user"]).optional(),
+  profile: z.string("Profile must be a string").optional(),
 });
 
 export const changePasswordSchema = z.object({

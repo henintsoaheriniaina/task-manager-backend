@@ -19,6 +19,7 @@ export const seedAdmin = async () => {
         email: process.env.ADMIN_EMAIL || "admin@test.com",
         password: hashedPassword,
         role: UserRole.ADMIN,
+        profile: "henintsoa",
       });
 
       console.log("✅ Compte Admin créé avec succès !");

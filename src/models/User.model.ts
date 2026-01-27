@@ -26,6 +26,10 @@ const userSchema = new Schema<IUser, IUserModel>(
       minlength: [6, "Password must be at least 6 characters"],
       select: false,
     },
+    profile: {
+      type: String,
+      required: [true, "Profile is required"],
+    },
     role: {
       type: String,
       enum: Object.values(UserRole),

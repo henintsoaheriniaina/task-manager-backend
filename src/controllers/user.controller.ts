@@ -12,7 +12,7 @@ import { ApiError } from "../utils/ApiError";
 
 export const createUser = expressAsyncHandler(
   async (req: Request<{}, {}, CreateUserInput>, res: Response) => {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, profile } = req.body;
 
     const userExists = await User.findOne({ email });
     if (userExists) {
@@ -26,6 +26,7 @@ export const createUser = expressAsyncHandler(
       name,
       email,
       password: hashedPassword,
+      profile,
       role: role || "user",
     });
 
@@ -36,6 +37,7 @@ export const createUser = expressAsyncHandler(
         name: user.name,
         email: user.email,
         role: user.role,
+        profile: user.profile,
       },
     });
   },
@@ -69,7 +71,7 @@ export const getUserById = expressAsyncHandler(
 
 export const updateUser = expressAsyncHandler(
   async (req: Request<{ id: string }, {}, UpdateUserInput>, res: Response) => {
-    const { name, email, role } = req.body;
+    const { name, email, role, profile } = req.body;
 
     const user = await User.findById(req.params.id);
     if (!user) {
@@ -84,6 +86,7 @@ export const updateUser = expressAsyncHandler(
     }
 
     if (name) user.name = name;
+    if (profile) user.profile = profile;
     if (email) user.email = email;
     if (role) user.role = role as UserRole;
 
@@ -96,6 +99,7 @@ export const updateUser = expressAsyncHandler(
         name: user.name,
         email: user.email,
         role: user.role,
+        profile: user.profile,
       },
     });
   },

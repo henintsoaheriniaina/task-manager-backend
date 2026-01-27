@@ -9,7 +9,7 @@ import { generateToken, sendTokenResponse } from "../utils/jwt";
 
 export const register = expressAsyncHandler(
   async (req: Request<{}, {}, RegisterInput>, res: Response) => {
-    const { name, email, password } = req.body;
+    const { name, email, password, profile } = req.body;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -22,6 +22,7 @@ export const register = expressAsyncHandler(
     const user = await User.create({
       name,
       email,
+      profile,
       password: hashedPassword,
     });
 
@@ -32,6 +33,7 @@ export const register = expressAsyncHandler(
       name: user.name,
       email: user.email,
       role: user.role,
+      profile: user.profile,
     });
   },
 );
@@ -57,6 +59,7 @@ export const login = expressAsyncHandler(
       name: user.name,
       email: user.email,
       role: user.role,
+      profile: user.profile,
     });
   },
 );
@@ -90,6 +93,7 @@ export const getMe = expressAsyncHandler(
         name: user.name,
         email: user.email,
         role: user.role,
+        profile: user.profile,
         createdAt: user.createdAt,
       },
     });

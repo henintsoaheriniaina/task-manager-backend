@@ -17,6 +17,7 @@ export interface IUser {
   _id: string;
   name: string;
   email: string;
+  profile: string;
   password: string;
   role: UserRole;
   createdAt: Date;
@@ -29,9 +30,9 @@ export interface ITask {
   title: string;
   description: string;
   status: TaskStatus;
-  assignedTo?: string;
-  createdBy: ObjectId;
-  dueDate?: Date;
+  assignedTo: ObjectId | IUser;
+  createdBy: ObjectId | IUser;
+  dueDate: Date;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -21,7 +21,13 @@ export const sendTokenResponse = (
   res: Response,
   statusCode: number,
   token: string,
-  user: { id: string; name: string; email: string; role: UserRole },
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    role: UserRole;
+    profile: string;
+  },
 ) => {
   const cookieOptions = {
     expires: new Date(
