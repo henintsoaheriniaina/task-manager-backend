@@ -17,6 +17,7 @@ export interface IUser {
   _id: string;
   name: string;
   email: string;
+  profile: string;
   password: string;
   role: UserRole;
   createdAt: Date;
@@ -29,14 +30,19 @@ export interface ITask {
   title: string;
   description: string;
   status: TaskStatus;
-  assignedTo?: string;
-  createdBy: ObjectId;
-  dueDate?: Date;
+  assignedTo: ObjectId | IUser | null;
+  createdBy: ObjectId | IUser;
+  dueDate: Date;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface AuthRequest extends Request {
+export interface AuthRequest<
+  P = any,
+  ResBody = any,
+  ReqBody = any,
+  ReqQuery = any,
+> extends Request<P, ResBody, ReqBody, ReqQuery> {
   user?: {
     id: string;
     email: string;

@@ -1,13 +1,47 @@
+import bcrypt from "bcryptjs";
 import { type Request, type Response } from "express";
 import expressAsyncHandler from "express-async-handler";
 import { User } from "../models/User.model";
 import {
   type ChangePasswordInput,
+  type CreateUserInput,
   type UpdateUserInput,
 } from "../schemas/user.schema";
-import { type AuthRequest } from "../types";
+import { UserRole, type AuthRequest } from "../types";
 import { ApiError } from "../utils/ApiError";
 
+export const createUser = expressAsyncHandler(
+  async (req: Request<{}, {}, CreateUserInput>, res: Response) => {
+    const { name, email, password, role, profile } = req.body;
+
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      throw ApiError.conflict("Email already in use");
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const user = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      profile,
+      role: role || "user",
+    });
+
+    res.status(201).json({
+      success: true,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        profile: user.profile,
+      },
+    });
+  },
+);
 export const getAllUsers = expressAsyncHandler(
   async (req: Request, res: Response) => {
     const users = await User.find().select("-password");
@@ -37,7 +71,7 @@ export const getUserById = expressAsyncHandler(
 
 export const updateUser = expressAsyncHandler(
   async (req: Request<{ id: string }, {}, UpdateUserInput>, res: Response) => {
-    const { name, email, role } = req.body;
+    const { name, email, role, profile } = req.body;
 
     const user = await User.findById(req.params.id);
     if (!user) {
@@ -52,8 +86,9 @@ export const updateUser = expressAsyncHandler(
     }
 
     if (name) user.name = name;
+    if (profile) user.profile = profile;
     if (email) user.email = email;
-    if (role) user.role = role;
+    if (role) user.role = role as UserRole;
 
     await user.save();
 
@@ -64,6 +99,7 @@ export const updateUser = expressAsyncHandler(
         name: user.name,
         email: user.email,
         role: user.role,
+        profile: user.profile,
       },
     });
   },

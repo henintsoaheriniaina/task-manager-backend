@@ -7,7 +7,6 @@ import logMiddleware from "./middlewares/log.middleware";
 import authRoutes from "./routes/auth.routes";
 import taskRoutes from "./routes/task.routes";
 import userRoutes from "./routes/user.routes";
-import job from "./utils/cron";
 
 const app = express();
 
@@ -23,7 +22,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(logMiddleware);
 
-job.start();
+// job.start();
 
 app.get("/", (req: Request, res: Response) => {
   res.status(200).json({

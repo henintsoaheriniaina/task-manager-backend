@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   changePassword,
+  createUser,
   deleteUser,
   getAllUsers,
   getUserById,
@@ -8,7 +9,11 @@ import {
 } from "../controllers/user.controller";
 import { authorize, protect } from "../middlewares/auth.middleware";
 import { validate } from "../middlewares/validate.middleware";
-import { changePasswordSchema, updateUserSchema } from "../schemas/user.schema";
+import {
+  changePasswordSchema,
+  createUserSchema,
+  updateUserSchema,
+} from "../schemas/user.schema";
 import { UserRole } from "../types";
 
 const router = Router();
@@ -16,6 +21,12 @@ const router = Router();
 router.use(protect);
 
 router.get("/", authorize(UserRole.ADMIN), getAllUsers);
+router.post(
+  "/",
+  authorize(UserRole.ADMIN),
+  validate(createUserSchema),
+  createUser,
+);
 router.get("/:id", getUserById);
 router.put(
   "/:id",

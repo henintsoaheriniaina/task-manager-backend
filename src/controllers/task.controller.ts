@@ -6,22 +6,29 @@ import {
   type TaskFilterInput,
   type UpdateTaskInput,
 } from "../schemas/task.schema";
-import { type AuthRequest, UserRole } from "../types";
+import { type AuthRequest, type IUser, UserRole } from "../types";
 import { ApiError } from "../utils/ApiError";
 
 export const createTask = expressAsyncHandler(
   async (req: AuthRequest<{}, {}, CreateTaskInput>, res: Response) => {
-    const taskData = {
-      ...req.body,
-      createdBy: req.user!.id,
-    };
+    const { description, dueDate, status, title, assignedTo } = req.body;
+    const createdBy = req.user!.id;
 
-    const task = await Task.create(taskData);
-    await task.populate(["createdBy", "assignedTo"]);
+    const task = await Task.create({
+      title,
+      description,
+      status,
+      dueDate,
+      createdBy,
+      assignedTo,
+    });
 
+    const populated = await Task.findOne(task._id)
+      .populate("createdBy", "name email profile")
+      .populate("assignedTo", "name email profile");
     res.status(201).json({
       success: true,
-      task,
+      task: populated,
     });
   },
 );
@@ -41,8 +48,8 @@ export const getTasks = expressAsyncHandler(
     if (createdBy) query.createdBy = createdBy;
 
     const tasks = await Task.find(query)
-      .populate("createdBy", "name email")
-      .populate("assignedTo", "name email")
+      .populate("createdBy", "name email profile")
+      .populate("assignedTo", "name email profile")
       .sort({ createdAt: -1 });
 
     res.status(200).json({
@@ -56,16 +63,16 @@ export const getTasks = expressAsyncHandler(
 export const getTaskById = expressAsyncHandler(
   async (req: AuthRequest, res: Response) => {
     const task = await Task.findById(req.params.id)
-      .populate("createdBy", "name email")
-      .populate("assignedTo", "name email");
+      .populate("createdBy", "name email profile")
+      .populate("assignedTo", "name email profile");
 
     if (!task) {
       throw ApiError.notFound("Task not found");
     }
 
     if (req.user!.role === UserRole.USER) {
-      const isOwner = task.createdBy._id.toString() === req.user!.id;
-      const isAssigned = task.assignedTo?._id.toString() === req.user!.id;
+      const isOwner = (task.createdBy as IUser)._id.toString() === req.user!.id;
+      const isAssigned = (task.assignedTo as IUser).toString() === req.user!.id;
 
       if (!isOwner && !isAssigned) {
         throw ApiError.forbidden("Not authorized to access this task");
