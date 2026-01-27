@@ -12,7 +12,7 @@ export const createTaskSchema = z.object({
     .enum(["todo", "in_progress", "completed"], "")
     .optional()
     .default("todo"),
-  assignedTo: z.string(),
+  assignedTo: z.string().optional(),
   dueDate: z.coerce.date("Invalid date format"),
 });
 

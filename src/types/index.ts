@@ -30,7 +30,7 @@ export interface ITask {
   title: string;
   description: string;
   status: TaskStatus;
-  assignedTo: ObjectId | IUser;
+  assignedTo: ObjectId | IUser | null;
   createdBy: ObjectId | IUser;
   dueDate: Date;
   createdAt: Date;

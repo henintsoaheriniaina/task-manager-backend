@@ -27,6 +27,7 @@ const taskSchema = new Schema<ITask, ITaskModel>(
       type: Schema.Types.ObjectId,
       ref: "User",
       default: null,
+      required: false,
     },
     createdBy: {
       type: Schema.Types.ObjectId,
