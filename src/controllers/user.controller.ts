@@ -3,11 +3,10 @@ import { type Request, type Response } from "express";
 import expressAsyncHandler from "express-async-handler";
 import { User } from "../models/User.model";
 import {
-  type ChangePasswordInput,
   type CreateUserInput,
   type UpdateUserInput,
 } from "../schemas/user.schema";
-import { UserRole, type AuthRequest } from "../types";
+import { UserRole } from "../types";
 import { ApiError } from "../utils/ApiError";
 
 export const createUser = expressAsyncHandler(
@@ -121,30 +120,6 @@ export const deleteUser = expressAsyncHandler(
     res.status(200).json({
       success: true,
       message: "User deleted successfully",
-    });
-  },
-);
-
-export const changePassword = expressAsyncHandler(
-  async (req: AuthRequest<{}, {}, ChangePasswordInput>, res: Response) => {
-    const { currentPassword, newPassword } = req.body;
-
-    const user = await User.findById(req.user!.id).select("+password");
-    if (!user) {
-      throw ApiError.notFound("User not found");
-    }
-
-    const isPasswordValid = await user.comparePassword(currentPassword);
-    if (!isPasswordValid) {
-      throw ApiError.unauthorized("Current password is incorrect");
-    }
-
-    user.password = newPassword;
-    await user.save();
-
-    res.status(200).json({
-      success: true,
-      message: "Password changed successfully",
     });
   },
 );
