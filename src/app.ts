@@ -25,15 +25,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(logMiddleware);
 
-
-
-app.use(cors({
-  origin: 'https://power-tasks.vercel.app',
-  credentials: true, 
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
-
 job.start();
 
 app.get("/", (req: Request, res: Response) => {
