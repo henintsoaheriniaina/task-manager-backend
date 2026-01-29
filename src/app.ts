@@ -27,9 +27,12 @@ app.use(logMiddleware);
 
 
 
-app.use(
-  cors()
-);
+app.use(cors({
+  origin: 'https://power-tasks.vercel.app',
+  credentials: true, 
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 
 job.start();
 
