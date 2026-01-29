@@ -22,7 +22,7 @@ export const sendTokenResponse = (
   statusCode: number,
   token: string,
   user: {
-    id: string;
+    _id: string;
     name: string;
     email: string;
     role: UserRole;
@@ -45,10 +45,11 @@ export const sendTokenResponse = (
       success: true,
       token,
       user: {
-        id: user.id,
+        _id: user._id,
         name: user.name,
         email: user.email,
         role: user.role,
+        profile: user.profile,
       },
     });
 };

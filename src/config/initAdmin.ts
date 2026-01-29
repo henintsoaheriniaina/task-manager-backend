@@ -1,6 +1,8 @@
+import { faker } from "@faker-js/faker";
 import bcrypt from "bcryptjs";
 import { User } from "../models/User.model";
 import { UserRole } from "../types";
+import { env } from "./env";
 
 export const seedAdmin = async () => {
   try {
@@ -10,18 +12,17 @@ export const seedAdmin = async () => {
       console.log("Création de l'administrateur par défaut...");
 
       const hashedPassword = await bcrypt.hash(
-        process.env.ADMIN_PASSWORD || "admin123",
+        env.ADMIN_PASSWORD || "admin123",
         10,
       );
 
       await User.create({
         name: "Admin",
-        email: process.env.ADMIN_EMAIL || "admin@test.com",
+        email: env.ADMIN_EMAIL || "admin@test.com",
         password: hashedPassword,
         role: UserRole.ADMIN,
-        profile: "henintsoa",
+        profile: faker.image.avatar(),
       });
-
       console.log("✅ Compte Admin créé avec succès !");
     }
   } catch (error) {

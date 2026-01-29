@@ -56,7 +56,10 @@ export const getAllUsers = expressAsyncHandler(
 
 export const getUserById = expressAsyncHandler(
   async (req: Request, res: Response) => {
-    const user = await User.findById(req.params.id).select("-password");
+    const user = await User.findById(req.params.id)
+      .select("-password")
+      .populate("assignedTasks")
+      .populate("createdTasks");
 
     if (!user) {
       throw ApiError.notFound("User not found");

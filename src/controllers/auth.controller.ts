@@ -29,7 +29,7 @@ export const register = expressAsyncHandler(
     const token = generateToken(user._id.toString(), user.email, user.role);
 
     sendTokenResponse(res, 201, token, {
-      id: user._id.toString(),
+      _id: user._id.toString(),
       name: user.name,
       email: user.email,
       role: user.role,
@@ -55,7 +55,7 @@ export const login = expressAsyncHandler(
     const token = generateToken(user._id.toString(), user.email, user.role);
 
     sendTokenResponse(res, 200, token, {
-      id: user._id.toString(),
+      _id: user._id.toString(),
       name: user.name,
       email: user.email,
       role: user.role,
@@ -89,7 +89,7 @@ export const getMe = expressAsyncHandler(
     res.status(200).json({
       success: true,
       user: {
-        id: user._id.toString(),
+        _id: user._id.toString(),
         name: user.name,
         email: user.email,
         role: user.role,

@@ -4,6 +4,7 @@ import express, { type Request, type Response } from "express";
 import { env } from "./config/env";
 import { errorHandler, notFound } from "./middlewares/error.middleware";
 import logMiddleware from "./middlewares/log.middleware";
+import accessibleRoutes from "./routes/accessible.routes";
 import authRoutes from "./routes/auth.routes";
 import taskRoutes from "./routes/task.routes";
 import userRoutes from "./routes/user.routes";
@@ -35,6 +36,7 @@ app.get("/", (req: Request, res: Response) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/tasks", taskRoutes);
+app.use("/api/accessible", accessibleRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

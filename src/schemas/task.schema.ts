@@ -12,18 +12,29 @@ export const createTaskSchema = z.object({
     .enum(["todo", "in_progress", "completed"], "")
     .optional()
     .default("todo"),
-  assignedTo: z.string().optional(),
+  assignedTo: z
+    .string("Assignee is required")
+    .min(1, "Please select a user to assign this task"),
+
+  createdBy: z.string("Creator is required").min(1, "Creator ID is missing"),
   dueDate: z.coerce.date("Invalid date format"),
 });
 
 export const updateTaskSchema = createTaskSchema.partial();
 
 export const taskFilterSchema = z.object({
-  status: z.enum(["todo", "in_progress", "completed"], "").optional(),
+  status: z
+    .enum(["todo", "in_progress", "completed"], "Invalid Status")
+    .optional(),
   assignedTo: z.string().optional(),
   createdBy: z.string().optional(),
+});
+
+export const updateStatusSchema = z.object({
+  status: z.enum(["todo", "in_progress", "completed"], "Invalid Status"),
 });
 
 export type CreateTaskInput = z.infer<typeof createTaskSchema>;
 export type UpdateTaskInput = z.infer<typeof updateTaskSchema>;
 export type TaskFilterInput = z.infer<typeof taskFilterSchema>;
+export type UpdateStatusInput = z.infer<typeof updateStatusSchema>;

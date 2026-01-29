@@ -40,7 +40,20 @@ const userSchema = new Schema<IUser, IUserModel>(
     timestamps: true,
   },
 );
+userSchema.set("toJSON", { virtuals: true });
+userSchema.set("toObject", { virtuals: true });
 
+userSchema.virtual("assignedTasks", {
+  ref: "Task",
+  localField: "_id",
+  foreignField: "assignedTo",
+});
+
+userSchema.virtual("createdTasks", {
+  ref: "Task",
+  localField: "_id",
+  foreignField: "createdBy",
+});
 userSchema.methods.comparePassword = async function (
   candidatePassword: string,
 ): Promise<boolean> {
