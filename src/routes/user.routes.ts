@@ -1,6 +1,5 @@
 import { Router } from "express";
 import {
-  changePassword,
   createUser,
   deleteUser,
   getAllUsers,
@@ -9,36 +8,18 @@ import {
 } from "../controllers/user.controller";
 import { authorize, protect } from "../middlewares/auth.middleware";
 import { validate } from "../middlewares/validate.middleware";
-import {
-  changePasswordSchema,
-  createUserSchema,
-  updateUserSchema,
-} from "../schemas/user.schema";
+import { createUserSchema, updateUserSchema } from "../schemas/user.schema";
 import { UserRole } from "../types";
 
 const router = Router();
 
 router.use(protect);
+router.use(authorize(UserRole.ADMIN));
 
-router.get("/", authorize(UserRole.ADMIN), getAllUsers);
-router.post(
-  "/",
-  authorize(UserRole.ADMIN),
-  validate(createUserSchema),
-  createUser,
-);
+router.get("/", getAllUsers);
+router.post("/", validate(createUserSchema), createUser);
 router.get("/:id", getUserById);
-router.put(
-  "/:id",
-  authorize(UserRole.ADMIN),
-  validate(updateUserSchema),
-  updateUser,
-);
-router.delete("/:id", authorize(UserRole.ADMIN), deleteUser);
-router.put(
-  "/me/change-password",
-  validate(changePasswordSchema),
-  changePassword,
-);
+router.put("/:id", validate(updateUserSchema), updateUser);
+router.delete("/:id", deleteUser);
 
 export default router;

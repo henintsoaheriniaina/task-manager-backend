@@ -6,14 +6,13 @@ import {
   type TaskFilterInput,
   type UpdateTaskInput,
 } from "../schemas/task.schema";
-import { type AuthRequest, type IUser, UserRole } from "../types";
+import { type AuthRequest, UserRole } from "../types";
 import { ApiError } from "../utils/ApiError";
 
 export const createTask = expressAsyncHandler(
   async (req: AuthRequest<{}, {}, CreateTaskInput>, res: Response) => {
-    const { description, dueDate, status, title, assignedTo } = req.body;
-    const createdBy = req.user!.id;
-
+    const { description, dueDate, status, title, assignedTo, createdBy } =
+      req.body;
     const task = await Task.create({
       title,
       description,
@@ -24,8 +23,8 @@ export const createTask = expressAsyncHandler(
     });
 
     const populated = await Task.findOne(task._id)
-      .populate("createdBy", "name email profile")
-      .populate("assignedTo", "name email profile");
+      .populate("createdBy", "name email profile role")
+      .populate("assignedTo", "name email profile role");
     res.status(201).json({
       success: true,
       task: populated,
@@ -48,8 +47,9 @@ export const getTasks = expressAsyncHandler(
     if (createdBy) query.createdBy = createdBy;
 
     const tasks = await Task.find(query)
-      .populate("createdBy", "name email profile")
-      .populate("assignedTo", "name email profile")
+
+      .populate("createdBy", "name email profile role")
+      .populate("assignedTo", "name email profile role")
       .sort({ createdAt: -1 });
 
     res.status(200).json({
@@ -63,22 +63,11 @@ export const getTasks = expressAsyncHandler(
 export const getTaskById = expressAsyncHandler(
   async (req: AuthRequest, res: Response) => {
     const task = await Task.findById(req.params.id)
-      .populate("createdBy", "name email profile")
-      .populate("assignedTo", "name email profile");
-
+      .populate("createdBy", "name email profile role")
+      .populate("assignedTo", "name email profile role");
     if (!task) {
       throw ApiError.notFound("Task not found");
     }
-
-    if (req.user!.role === UserRole.USER) {
-      const isOwner = (task.createdBy as IUser)._id.toString() === req.user!.id;
-      const isAssigned = (task.assignedTo as IUser).toString() === req.user!.id;
-
-      if (!isOwner && !isAssigned) {
-        throw ApiError.forbidden("Not authorized to access this task");
-      }
-    }
-
     res.status(200).json({
       success: true,
       task,
@@ -96,18 +85,12 @@ export const updateTask = expressAsyncHandler(
     if (!task) {
       throw ApiError.notFound("Task not found");
     }
-
-    if (
-      req.user!.role === UserRole.USER &&
-      task.createdBy.toString() !== req.user!.id
-    ) {
-      throw ApiError.forbidden("Not authorized to update this task");
-    }
-
     task = await Task.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
-    }).populate(["createdBy", "assignedTo"]);
+    })
+      .populate("createdBy", "name email profile role")
+      .populate("assignedTo", "name email profile role");
 
     res.status(200).json({
       success: true,
@@ -123,16 +106,7 @@ export const deleteTask = expressAsyncHandler(
     if (!task) {
       throw ApiError.notFound("Task not found");
     }
-
-    if (
-      req.user!.role === UserRole.USER &&
-      task.createdBy.toString() !== req.user!.id
-    ) {
-      throw ApiError.forbidden("Not authorized to delete this task");
-    }
-
     await task.deleteOne();
-
     res.status(200).json({
       success: true,
       message: "Task deleted successfully",

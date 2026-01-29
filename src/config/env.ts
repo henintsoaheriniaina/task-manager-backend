@@ -20,6 +20,7 @@ const envSchema = z.object({
     .string()
     .min(8, "Admin password must be at least 8 characters"),
   ADMIN_EMAIL: z.email("Admin email must be a valid email address"),
+  ADMIN_PROFILE: z.url("Admin profile must be a valid image url"),
 });
 
 const parsed = envSchema.safeParse(process.env);

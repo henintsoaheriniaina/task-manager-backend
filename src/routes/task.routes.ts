@@ -6,17 +6,19 @@ import {
   getTasks,
   updateTask,
 } from "../controllers/task.controller";
-import { protect } from "../middlewares/auth.middleware";
+import { authorize, protect } from "../middlewares/auth.middleware";
 import { validate, validateQuery } from "../middlewares/validate.middleware";
 import {
   createTaskSchema,
   taskFilterSchema,
   updateTaskSchema,
 } from "../schemas/task.schema";
+import { UserRole } from "../types";
 
 const router = Router();
 
 router.use(protect);
+router.use(authorize(UserRole.ADMIN));
 
 router
   .route("/")
