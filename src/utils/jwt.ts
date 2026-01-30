@@ -29,13 +29,14 @@ export const sendTokenResponse = (
     profile: string;
   },
 ) => {
+  const isProduction = env.NODE_ENV === "production";
   const cookieOptions = {
     expires: new Date(
       Date.now() + parseInt(env.COOKIE_EXPIRE) * 24 * 60 * 60 * 1000,
     ),
     httpOnly: true,
-    secure: env.NODE_ENV === "production",
-    sameSite: "strict" as const,
+    secure: isProduction ,
+   sameSite: isProduction ? ("none" as const) : ("lax" as const),
   };
 
   res
